@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kuis Jawa Timur - Budaya & Pariwisata Sederhana</title>
+    
+    <style>
+      /* --- STYLE KHUSUS NUANSA JAWA TIMUR --- */
+        body {
+            font-family: 'Times New Roman', serif; 
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            
+            /* --- MODIFIKASI UNTUK BACKGROUND IMAGE --- */
+            background-image: url('gg.png'); 
+            background-size: cover; 
+            background-position: center; 
+            background-repeat: no-repeat; 
+            background-attachment: fixed; 
+            background-color: #f5f5dc; 
+            /* -------------------------------------- */
+            
+            color: #4a382d; 
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5); 
+        }
+        
+        .container {
+            /* --- MODIFIKASI UNTUK BACKGROUND IMAGE KOTAK KUIS --- */
+            background-image: url('tees.png'); 
+            background-color: #fdf5e6; 
+            background-size: cover; 
+            background-position: center; 
+            background-repeat: no-repeat; 
+            /* ------------------------------------------------ */
+            
+            padding: 30px 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.7); 
+            text-align: center;
+            max-width: 600px;
+            width: 90%;
+            position: relative; /* Penting untuk tombol musik di welcome area */
+            z-index: 10;
+        }
+
+        h1 {
+            color: #8B4513; 
+            margin-bottom: 25px;
+            font-size: 2.5em;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-bottom: 3px solid #a0522d;
+            padding-bottom: 10px;
+        }
+        
+        h2 {
+            color: #5C4033;
+            margin-bottom: 20px;
+            font-size: 1.6em;
+        }
+
+        /* --- Tombol Utama (Mulai, Lanjut, Ulang) --- */
+        .main-button {
+            background-color: #a0522d; 
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.2em;
+            cursor: pointer;
+            margin-top: 25px;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px #8B4513;
+        }
+
+        .main-button:hover {
+            background-color: #8B4513;
+            box-shadow: 0 2px #5C4033;
+            transform: translateY(2px);
+        }
+        
+        /* --- Pilihan Jawaban --- */
+        .options-container button {
+            display: block;
+            width: 100%;
+            padding: 12px 15px;
+            margin: 10px 0;
+            border: 2px solid #a0522d;
+            border-radius: 8px;
+            background-color: #fdf5e6;
+            color: #4a382d;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .options-container button:hover {
+            background-color: #ffe4c4;
+            border-color: #8B4513;
+        }
+        
+        /* --- Feedback Jawaban --- */
+        .options-container button.selected {
+            border: 3px solid #800080; 
+        }
+
+        .options-container button.correct {
+            background-color: #4CAF50; 
+            color: white;
+            border-color: #2E8B57;
+        }
+
+        .options-container button.incorrect {
+            background-color: #F44336; 
+            color: white;
+            border-color: #8B0000;
+        }
+
+        /* Efek Animasi (tetap sama) */
+        @keyframes flashCorrect {
+            0% { background-color: #4CAF50; transform: scale(1); }
+            50% { background-color: #7FFF00; transform: scale(1.02); }
+            100% { background-color: #4CAF50; transform: scale(1); }
+        }
+
+        .options-container button.correct-flash {
+            animation: flashCorrect 0.4s ease-out 2;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+
+        .options-container button.incorrect-shake {
+            animation: shake 0.5s ease-in-out; 
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* --- STYLE BARU UNTUK MODAL MENU --- */
+        .modal {
+            display: none; 
+            position: fixed; 
+            z-index: 20; 
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.6); 
+            backdrop-filter: blur(3px); 
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #fdf5e6;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.8);
+            width: 80%;
+            max-width: 350px;
+            position: relative;
+        }
+
+        .modal-content h3 {
+            color: #8B4513;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .modal-content button {
+            display: block;
+            width: 100%;
+            margin-bottom: 15px;
+            padding: 12px;
+            font-size: 1.1em;
+        }
+
+        /* Gaya Khusus Tombol Lanjutkan (Primer) */
+        #resume-button {
+            background-color: #4CAF50; 
+            box-shadow: 0 4px #2E8B57;
+        }
+        #resume-button:hover {
+            background-color: #3e8e41;
+        }
+
+        /* Gaya Khusus Tombol Mulai Lagi (Sekunder) */
+        #restart-modal-button {
+            background-color: #FFC300; 
+            color: #4a382d;
+            box-shadow: 0 4px #DAA520;
+        }
+        #restart-modal-button:hover {
+             background-color: #e5b000;
+        }
+
+        /* Gaya Khusus Tombol Ke Beranda (Peringatan) */
+        #home-button {
+            background-color: #F44336; 
+            box-shadow: 0 4px #8B0000;
+        }
+        #home-button:hover {
+             background-color: #d32f2f;
+        }
+        
+        /* STYLE BARU UNTUK GAMBAR PERTANYAAN */
+        #image-container {
+            /* MENGGESER GAMBAR KE ATAS (margin atas lebih kecil) */
+            margin: 10px auto 10px auto; 
+            max-width: 90%; 
+            max-height: 250px; 
+            overflow: hidden; 
+            border-radius: 10px; 
+            box-shadow: 0 4px 8px rgba(0,0,0,0.4); 
+            /* MODIFIKASI: Gunakan flexbox untuk pemusatan horizontal */
+            display: flex !important; 
+            justify-content: center;
+            align-items: center;
+        }
+
+        #question-image {
+            /* Ukuran tampilan gambar pertanyaan */
+            width: 70%; 
+            height: auto; 
+            display: block;
+            object-fit: cover; 
+        }
+        
+        /* --- STYLE BARU UNTUK GAMBAR DI WELCOME AREA --- */
+        #welcome-area img {
+            max-width: 100%;
+            width: 50%; /* Mengatur lebar 50% sesuai permintaan terakhir */
+            height: auto;
+            display: block;
+            margin: 10px auto 25px auto; /* Margin atas 10px, margin bawah 25px */
+            /* border-radius dan box-shadow dihapus agar gambar menyatu dengan container */
+            
+            /* >>> KODE ANIMASI BARU UNTUK EFEK 'BERNAPAS' <<< */
+            animation: wayangBreath 3s ease-in-out infinite; 
+        }
+
+        /* Keyframes untuk efek 'Bernapas' pada gambar wayang */
+        @keyframes wayangBreath {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); } /* Membesar sedikit 2% */
+            100% { transform: scale(1); }
+        }
+        
+        /* --- STYLE BARU UNTUK TOMBOL ON/OFF MUSIK DI WELCOME AREA --- */
+        #toggle-music-welcome {
+            position: absolute;
+            top: 15px; 
+            right: 15px;
+            padding: 8px 15px;
+            font-size: 1em;
+            background-color: #5C4033; 
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 11;
+            box-shadow: 0 3px #4a382d;
+            transition: all 0.2s;
+            margin-top: 0; /* Override main-button margin */
+        }
+        
+        #toggle-music-welcome:hover {
+            background-color: #4a382d;
+            transform: translateY(1px);
+            box-shadow: 0 2px #3c2f25;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1> Pariwisata Jawa Timur</h1>
+        
+        <div id="welcome-area">
+            <button id="toggle-music-welcome" class="main-button">🎶 ON</button>
+
+            <audio id="welcome-music" loop>
+                <source src="backsound.mp3" type="audio/mpeg">
+                Browser Anda tidak mendukung elemen audio.
+            </audio>
+            
+            <img src="wayang kulit.png" alt="Ilustrasi Wayang Kulit"> 
+            
+            <p style="font-size: 1.2em; margin: 20px 0 30px 0; line-height: 1.6;">
+                Selamat datang!ayo uji pemahaman anda seberapa jauh anda mengenal jawa timur mulai dari kuliner,wisata,hingga budayanya
+            </p>
+            <p style="font-size: 1.1em;">
+                Siap untuk memulai perjalanan digital ini? 
+            </p>
+            <button id="start-button" class="main-button">Mulai perjalanan Sekarang!</button>
+        </div>
+        
+        <div id="quiz-area" class="hidden">
+            <div id="menu-actions" style="text-align: right; margin-bottom: 20px;">
+                <button id="menu-button" class="main-button" style="padding: 8px 15px; font-size: 1em; margin-top: 0;">Menu Utama</button>
+            </div>
+
+            <h2 id="question">Pertanyaan akan dimuat...</h2>
+            
+            <div id="image-container" style="display: none;"> 
+                <img id="question-image" src="" alt="Gambar Soal">
+            </div>
+            <div id="options" class="options-container">
+            </div>
+            <button id="next-button" class="main-button hidden">Selanjutnya</button>
+        </div>
+        
+        <div id="result-area" class="hidden">
+            <h2>醇 Selesai! Skor Akhir Anda:</h2>
+            <p style="font-size: 2.5em; font-weight: bold; color: #8B4513; margin: 20px 0;">
+                <span id="score">0</span> dari <span id="total-questions">0</span>
+            </p>
+            <button id="restart-button" class="main-button">Main Lagi (Ulangi Kuis)</button>
+            <button id="home-result-button" class="main-button" style="background-color: #F44336; box-shadow: 0 4px #8B0000; margin-left: 10px;">Kembali ke Beranda</button>
+        </div>
+    </div>
+    
+    <div id="menu-modal" class="modal">
+        <div class="modal-content">
+            <h3>Pilihan Menu</h3>
+
+            <button id="toggle-music-modal" class="main-button" style="margin-top: 0; margin-bottom: 25px;">🎶 Matikan Musik</button>
+            
+            <button id="resume-button" class="main-button">Lanjutkan Kuis</button>
+            
+            <button id="restart-modal-button" class="main-button">Mulai Lagi / Ulangi</button>
+
+            <button id="home-button" class="main-button">Kembali ke Beranda</button>
+        </div>
+    </div>
+    <script>
+        // >>> DATA PERTANYAAN DENGAN PROPERTI IMAGE BARU <<<
+        const questions = [
+            {
+                question: "Suku asli yang mendiami Pulau Madura dan beberapa wilayah pesisir Jawa Timur adalah...",
+                options: ["Suku Tengger", "Suku Osing", "Suku Madura", "Suku Bawean"],
+                answer: "Suku Madura",
+                image: "(h)suku madura.jpg" // Gambar Suku Madura
+            },
+            {
+                question: "Jembatan terpanjang di Indonesia yang menghubungkan Surabaya dan Pulau Madura adalah...",
+                options: ["Jembatan Merah", "Jembatan Suramadu", "Jembatan Barito", "Jembatan Pasupati"],
+                answer: "Jembatan Suramadu",
+                image: "(e)jembatan suramadu.jpg" // 
+            },
+            {
+                question: "Tarian tradisional dari Ponorogo yang menampilkan topeng kepala singa dengan merak di atasnya adalah...",
+                options: ["Tari Remo", "Reog Ponorogo", "Tari Topeng Malangan", "Tari Gandrung"],
+                answer: "Reog Ponorogo",
+                image: "(j)tari ponorogo2.jpg" // Gambar Reog Ponorogo
+            },
+            {
+                question: "Kota di Jawa Timur yang terkenal sebagai 'Kota Apel' adalah...",
+                options: ["Malang", "Batu", "Kediri", "Probolinggo"],
+                answer: "Batu",
+                image: "(a)wisata apel.jpg" // Gambar Wisata Apel
+            },
+            {
+                question: "Makanan khas Jawa Timur yang terkenal dengan kuah hitamnya adalah...",
+                options: ["Rawon", "Soto Lamongan", "Nasi Pecel", "Lontong Balap"],
+                answer: "Rawon",
+                image: "(g)rawon.jpg" // Gambar Rawon
+            },
+            {
+                question: "Danau vulkanik yang terletak di perbatasan Banyuwangi dan Bondowoso, terkenal dengan fenomena 'api biru'-nya adalah...",
+                options: ["Ranu Kumbolo", "Kawah Ijen", "Telaga Sarangan", "Danau Tiga Warna"],
+                answer: "Kawah Ijen",
+                image: "(d)kawah ijen.jpg" // Gambar Kawah Ijen
+            },
+            {
+                question: "Sebutan untuk makanan khas Surabaya berupa kupang yang disajikan dengan bumbu petis dan lontong adalah...",
+                options: ["Rujak Cingur", "Lontong Balap", "Tahu Campur", "Kupang Lontong"],
+                answer: "Kupang Lontong",
+                image: "(f)lotong kupang.jpg" // Tidak ada gambar
+            },
+            {
+                question: "Pahlawan nasional yang berasal dari Surabaya dan terkenal dengan perannya dalam Pertempuran 10 November 1945 adalah...",
+                options: ["Bung Hatta", "Jenderal Sudirman", "Bung Tomo", "H.O.S. Cokroaminoto"],
+                answer: "Bung Tomo",
+                image: "(b)bung tomo.jpg" // Gambar Bung Tomo
+            },
+            {
+                question: "Tari pergaulan khas masyarakat Osing dari Banyuwangi yang biasanya ditarikan oleh perempuan adalah...",
+                options: ["Tari Topeng", "Tari Saman", "Tari Gandrung", "Tari Remo"],
+                answer: "Tari Gandrung",
+                image: "(i)tari gendrang.jpg" // Gambar Tari Gandrung
+            },
+            {
+                question: "Apa nama candi peninggalan Kerajaan Singasari yang terletak di Malang?",
+                options: ["Candi Jago", "Candi Penataran", "Candi Borobudur", "Candi Singasari"],
+                answer: "Candi Singasari",
+                image: "(c)candi singasari.jpg" // Gambar Candi Singasari
+            }
+        ];
+        // >>> AKHIR DATA PERTANYAAN BARU <<<
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let selectedOption = null;
+        let isQuizPaused = false; 
+        let isMusicOn = true; // Variabel baru untuk status musik
+
+        // 楳 FUNGSI UTAMA UNTUK MENGACAK ARRAY (Fisher-Yates Shuffle)
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]]; 
+            }
+        }
+        // -------------------------------------------------------------
+
+        // 矧 Deklarasi Objek Audio (Pastikan file audio tersedia)
+        const soundCorrect = new Audio('saat betul (1).mp3');
+        const soundIncorrect = new Audio('saat salah.mp3');
+        const soundClick = new Audio('saat mengeklik rendem.mp3');
+
+        // Mendapatkan elemen HTML
+        const welcomeArea = document.getElementById('welcome-area');
+        const startButton = document.getElementById('start-button');
+        const questionElement = document.getElementById('question');
+        const optionsContainer = document.getElementById('options');
+        const nextButton = document.getElementById('next-button');
+        const resultArea = document.getElementById('result-area');
+        const quizArea = document.getElementById('quiz-area');
+        const scoreElement = document.getElementById('score');
+        const totalQuestionsElement = document.getElementById('total-questions');
+        const restartButton = document.getElementById('restart-button');
+        const menuButton = document.getElementById('menu-button'); 
+        
+        // START DEKLARASI ELEMEN GAMBAR BARU
+        const imageContainer = document.getElementById('image-container');
+        const questionImage = document.getElementById('question-image');
+        // END DEKLARASI ELEMEN GAMBAR BARU
+
+        const welcomeMusic = document.getElementById('welcome-music'); 
+        
+        // Elemen Modal
+        const menuModal = document.getElementById('menu-modal');
+        const resumeButton = document.getElementById('resume-button');
+        const restartModalButton = document.getElementById('restart-modal-button');
+        const homeButton = document.getElementById('home-button');
+        
+        // Tombol Baru di Area Hasil Akhir
+        const homeResultButton = document.getElementById('home-result-button'); 
+
+        // Elemen Tombol Musik BARU
+        const toggleMusicButtonWelcome = document.getElementById('toggle-music-welcome');
+        const toggleMusicButtonModal = document.getElementById('toggle-music-modal');
+
+        // --- FUNGSI MUSIK BARU ---
+        
+        function updateMusicButtonText() {
+            const text = isMusicOn ? '🎶 Matikan Musik' : '🎵 Putar Musik';
+            const symbol = isMusicOn ? '🎶 ON' : '🎵 OFF';
+
+            // Perbarui kedua tombol secara sinkron
+            if(toggleMusicButtonWelcome) {
+                toggleMusicButtonWelcome.textContent = symbol;
+            }
+            if(toggleMusicButtonModal) {
+                toggleMusicButtonModal.textContent = text;
+            }
+        }
+
+        function toggleMusic() {
+            if (isMusicOn) {
+                welcomeMusic.pause();
+                isMusicOn = false;
+            } else {
+                welcomeMusic.play().catch(error => {
+                    console.log("Gagal memutar musik:", error);
+                });
+                isMusicOn = true;
+            }
+            updateMusicButtonText();
+        }
+
+        // --- FUNGSI UTAMA ---
+        
+        function startQuiz() {
+            welcomeMusic.pause();
+            welcomeMusic.currentTime = 0; 
+
+            // Putar musik hanya jika isMusicOn
+            if (isMusicOn) {
+                welcomeMusic.play().catch(error => {
+                    console.log("Error memutar musik:", error);
+                });
+            }
+
+            shuffleArray(questions); 
+
+            welcomeArea.classList.add('hidden'); 
+            quizArea.classList.remove('hidden'); 
+            loadQuestion();
+        }
+
+        // >>> FUNGSI loadQuestion() <<<
+        function loadQuestion() {
+            selectedOption = null;
+            if (isQuizPaused) return; 
+
+            const currentQuestion = questions[currentQuestionIndex];
+            
+            // Logic untuk menampilkan/menyembunyikan gambar
+            if (currentQuestion.image && currentQuestion.image !== "") {
+                questionImage.src = currentQuestion.image; 
+                imageContainer.style.display = 'flex'; // Gunakan 'flex' agar CSS centering bekerja
+            } else {
+                imageContainer.style.display = 'none';
+                questionImage.src = ""; // Kosongkan src untuk jaga-jaga
+            }
+
+            let shuffledOptions = [...currentQuestion.options]; 
+            shuffleArray(shuffledOptions); 
+
+            questionElement.textContent = `(${currentQuestionIndex + 1}/${questions.length}) ${currentQuestion.question}`;
+            optionsContainer.innerHTML = ''; 
+
+            shuffledOptions.forEach(option => {
+                const button = document.createElement('button');
+                button.textContent = option;
+                button.classList.add('option-button');
+                button.addEventListener('click', () => selectOption(button, option));
+                optionsContainer.appendChild(button);
+            });
+
+            nextButton.textContent = currentQuestionIndex === questions.length - 1 ? 'Selesai & Lihat Skor' : 'Selanjutnya';
+            nextButton.classList.add('hidden'); 
+        }
+
+        function selectOption(button, option) {
+            if (isQuizPaused) return; 
+
+            document.querySelectorAll('.option-button').forEach(btn => {
+                btn.classList.remove('selected');
+                btn.disabled = false;
+            });
+
+            button.classList.add('selected');
+            selectedOption = option;
+            nextButton.classList.remove('hidden'); 
+            
+            soundClick.currentTime = 0; 
+            soundClick.play();
+        }
+
+        function checkAndProceed() {
+            if (selectedOption === null) {
+                alert('Pilih salah satu jawaban terlebih dahulu!');
+                return;
+            }
+            if (isQuizPaused) return; 
+
+            const currentQuestion = questions[currentQuestionIndex];
+            const optionButtons = document.querySelectorAll('.option-button');
+            let isCorrect = (selectedOption === currentQuestion.answer); 
+
+            // Logic Suara dan Skor
+            if (isCorrect) {
+                soundCorrect.currentTime = 0; 
+                soundCorrect.play(); 
+                score++;
+            } else {
+                soundIncorrect.currentTime = 0;
+                soundIncorrect.play(); 
+            }
+            
+            // Logic Feedback Visual
+            optionButtons.forEach(button => {
+                button.disabled = true; 
+                button.classList.remove('selected');
+                
+                if (button.textContent === currentQuestion.answer) {
+                    button.classList.add('correct');
+                    
+                    if (isCorrect) {
+                        button.classList.add('correct-flash'); 
+                    }
+                } else if (button.textContent === selectedOption) {
+                    button.classList.add('incorrect');
+                    
+                    if (!isCorrect) { 
+                        button.classList.add('incorrect-shake');
+                    }
+                }
+            });
+
+            nextButton.classList.add('hidden'); 
+
+            // Jeda 1.5 detik
+            setTimeout(() => {
+                document.querySelectorAll('.option-button').forEach(btn => {
+                    btn.classList.remove('correct-flash'); 
+                    btn.classList.remove('incorrect-shake');
+                });
+
+                currentQuestionIndex++;
+                if (currentQuestionIndex < questions.length) {
+                    loadQuestion();
+                } else {
+                    showResult();
+                }
+            }, 1500); 
+        }
+
+        // FUNGSI MODAL
+        function showMenuModal() {
+            quizArea.style.pointerEvents = 'none';
+            isQuizPaused = true;
+            menuModal.style.display = 'flex'; 
+            updateMusicButtonText(); // Pastikan teks tombol di modal diperbarui
+        }
+
+        function hideMenuModal() {
+            quizArea.style.pointerEvents = 'auto';
+            isQuizPaused = false;
+            menuModal.style.display = 'none'; 
+            loadQuestion(); 
+        }
+        
+        function restartCurrentQuiz() {
+            if(confirm("Anda yakin ingin MENGULANGI kuis ini dari awal? Skor dan posisi Anda saat ini akan hilang.")) {
+                hideMenuModal();
+                currentQuestionIndex = 0;
+                score = 0;
+                shuffleArray(questions); 
+                loadQuestion(); 
+            }
+        }
+        
+        function returnToWelcome() {
+             if(confirm("Anda yakin ingin kembali ke HALAMAN BERANDA? Kuis saat ini akan dibatalkan.")) {
+                hideMenuModal();
+                restartQuiz(); // Kembali ke halaman sambutan
+            }
+        }
+
+        function showResult() {
+            quizArea.classList.add('hidden');
+            resultArea.classList.remove('hidden');
+            scoreElement.textContent = score;
+            totalQuestionsElement.textContent = questions.length;
+        }
+
+        function restartQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            resultArea.classList.add('hidden');
+            quizArea.classList.add('hidden'); 
+            welcomeArea.classList.remove('hidden'); 
+            
+            // Putar musik sambutan saat kembali ke beranda, hanya jika isMusicOn
+            if (isMusicOn) {
+                welcomeMusic.play().catch(error => {
+                     console.log("Musik Welcome tidak dapat diputar otomatis:", error);
+                }); 
+            }
+        }
+        
+        // FUNGSI BARU: Langsung Mulai Ulang Kuis (diperlukan untuk tombol "Main Lagi" di Result Area)
+        function resetAndStartQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            resultArea.classList.add('hidden'); 
+            // Panggil startQuiz untuk mengulang dan mulai kuis baru secara otomatis
+            startQuiz(); 
+        }
+
+        // --- EVENT LISTENERS ---
+        startButton.addEventListener('click', startQuiz);
+        nextButton.addEventListener('click', checkAndProceed);
+        
+        // GANTI: Tombol "Main Lagi" (restartButton) di Result Area sekarang memanggil resetAndStartQuiz
+        restartButton.addEventListener('click', resetAndStartQuiz); 
+        // BARU: Tombol "Kembali ke Beranda" (homeResultButton) di Result Area
+        homeResultButton.addEventListener('click', restartQuiz);
+
+        // Listener untuk tombol Musik ON/OFF BARU
+        toggleMusicButtonWelcome.addEventListener('click', toggleMusic);
+        toggleMusicButtonModal.addEventListener('click', toggleMusic);
+        
+        // Listener untuk tombol Menu Utama (memanggil modal)
+        menuButton.addEventListener('click', showMenuModal);
+        
+        // Listener untuk tombol-tombol di dalam Modal
+        resumeButton.addEventListener('click', hideMenuModal); // Lanjutkan: Sembunyikan modal
+        restartModalButton.addEventListener('click', restartCurrentQuiz); // Mulai Lagi: Reset kuis & mulai
+        homeButton.addEventListener('click', returnToWelcome); // Ke Beranda: Kembali ke welcome screen
+
+        // Menampilkan halaman sambutan saat halaman dimuat
+        document.addEventListener('DOMContentLoaded', () => {
+             welcomeArea.classList.remove('hidden');
+             quizArea.classList.add('hidden');
+             resultArea.classList.add('hidden');
+             
+             updateMusicButtonText(); // Inisialisasi teks tombol musik
+        });
+    </script>
+</body>
+</html>
